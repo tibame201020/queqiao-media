@@ -1,0 +1,80 @@
+﻿name: Publish npm
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to publish
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish with npm provenance
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Verify immutable release identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$RELEASE_TAG" in
+            v*) ;;
+            *) echo "::error::Release ref must be a v-prefixed tag"; exit 1 ;;
+          esac
+          version="$(node -p "require('./package.json').version")"
+          test "$RELEASE_TAG" = "v$version" || {
+            echo "::error::Release tag $RELEASE_TAG does not match package version $version"
+            exit 1
+          }
+          test "$(git tag --points-at HEAD | grep -Fx "$RELEASE_TAG")" = "$RELEASE_TAG" || {
+            echo "::error::Checked-out commit is not tagged $RELEASE_TAG"
+            exit 1
+          }
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm audit --omit=dev --audit-level=moderate
+      - run: npm run check
+      - name: Verify trusted publishing toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --version
+          npm_version="$(npm --version)"
+          echo "npm v$npm_version"
+          node -e "const [M,m,p]=process.argv[1].split('.').map(Number); if (M < 11 || (M === 11 && (m < 5 || (m === 5 && p < 1)))) process.exit(1)" "$npm_version"
+      - name: Check whether version already exists
+        id: registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          name="$(node -p "require('./package.json').name")"
+          version="$(node -p "require('./package.json').version")"
+          if npm view "$name@$version" version --json >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "$name@$version already exists; skipping publish"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Publish public package with trusted publishing
+        if: steps.registry.outputs.exists != 'true'
+        run: npm publish --provenance --access public

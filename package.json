@@ -1,0 +1,208 @@
+{
+    "name":  "@tibame201020/queqiao-media",
+    "version":  "0.2.3",
+    "description":  "Bounded media extension for Queqiao",
+    "type":  "module",
+    "main":  "./dist/index.js",
+    "types":  "./dist/index.d.ts",
+    "exports":  {
+                    ".":  {
+                              "types":  "./dist/index.d.ts",
+                              "import":  "./dist/index.js",
+                              "default":  "./dist/index.js"
+                          }
+                },
+    "files":  [
+                  "dist/",
+                  "README.md",
+                  "README.zh-TW.md",
+                  "LICENSE"
+              ],
+    "scripts":  {
+                    "clean":  "node -e \"require(\u0027node:fs\u0027).rmSync(\u0027dist\u0027,{recursive:true,force:true})\"",
+                    "build":  "npm run clean \u0026\u0026 tsc -p tsconfig.build.json",
+                    "typecheck":  "tsc -p tsconfig.json --noEmit",
+                    "test":  "vitest run src/index.test.ts",
+                    "check":  "npm run typecheck \u0026\u0026 npm test \u0026\u0026 npm run build",
+                    "prepack":  "npm run check"
+                },
+    "engines":  {
+                    "node":  "\u003e=22.19 \u003c25"
+                },
+    "dependencies":  {
+                         "zod":  "4.4.3"
+                     },
+    "devDependencies":  {
+                            "@tibame201020/queqiao":  "0.9.13",
+                            "@types/node":  "^24.10.0",
+                            "typescript":  "7.0.2",
+                            "vitest":  "4.1.10"
+                        },
+    "queqiao":  {
+                    "apiVersion":  1,
+                    "module":  "./dist/index.js",
+                    "manifest":  {
+                                     "id":  "dev.queqiao.media",
+                                     "version":  "0.2.3",
+                                     "displayName":  "Queqiao Media",
+                                     "host":  {
+                                                  "kind":  "worker"
+                                              },
+                                     "ordering":  {
+                                                      "requires":  [
+
+                                                                   ],
+                                                      "before":  [
+
+                                                                 ],
+                                                      "after":  [
+
+                                                                ]
+                                                  },
+                                     "contributions":  [
+                                                           {
+                                                               "operation":  "register",
+                                                               "tool":  "image_probe",
+                                                               "visibility":  "public",
+                                                               "title":  "Image transport probe",
+                                                               "description":  "Return a tiny synthetic PNG as native MCP ImageContent to verify media transport.",
+                                                               "inputSchema":  {
+                                                                                   "$schema":  "https://json-schema.org/draft/2020-12/schema",
+                                                                                   "type":  "object",
+                                                                                   "properties":  {
+                                                                                                      "workspaceId":  {
+                                                                                                                          "type":  "string",
+                                                                                                                          "minLength":  1,
+                                                                                                                          "maxLength":  64
+                                                                                                                      }
+                                                                                                  },
+                                                                                   "required":  [
+                                                                                                    "workspaceId"
+                                                                                                ]
+                                                                               },
+                                                               "requiredCapabilities":  [
+
+                                                                                        ],
+                                                               "risk":  "read",
+                                                               "annotations":  {
+                                                                                   "readOnlyHint":  true,
+                                                                                   "destructiveHint":  false,
+                                                                                   "openWorldHint":  false,
+                                                                                   "idempotentHint":  true
+                                                                               }
+                                                           },
+                                                           {
+                                                               "operation":  "register",
+                                                               "tool":  "image_read",
+                                                               "visibility":  "public",
+                                                               "title":  "Read workspace image",
+                                                               "description":  "Read a bounded PNG, JPEG, or WebP from the selected Workspace and return native MCP ImageContent.",
+                                                               "inputSchema":  {
+                                                                                   "$schema":  "https://json-schema.org/draft/2020-12/schema",
+                                                                                   "type":  "object",
+                                                                                   "properties":  {
+                                                                                                      "workspaceId":  {
+                                                                                                                          "type":  "string",
+                                                                                                                          "minLength":  1,
+                                                                                                                          "maxLength":  64
+                                                                                                                      },
+                                                                                                      "path":  {
+                                                                                                                   "type":  "string",
+                                                                                                                   "minLength":  1,
+                                                                                                                   "maxLength":  4096
+                                                                                                               }
+                                                                                                  },
+                                                                                   "required":  [
+                                                                                                    "workspaceId",
+                                                                                                    "path"
+                                                                                                ]
+                                                                               },
+                                                               "requiredCapabilities":  [
+                                                                                            "workspace:read"
+                                                                                        ],
+                                                               "risk":  "read",
+                                                               "annotations":  {
+                                                                                   "readOnlyHint":  true,
+                                                                                   "destructiveHint":  false,
+                                                                                   "openWorldHint":  false,
+                                                                                   "idempotentHint":  true
+                                                                               }
+                                                           },
+                                                           {
+                                                               "operation":  "register",
+                                                               "tool":  "video_frames",
+                                                               "visibility":  "public",
+                                                               "title":  "Sample workspace video",
+                                                               "description":  "Sample a bounded set of JPEG frames from a Workspace video through Worker-managed ffmpeg and return them as native MCP ImageContent.",
+                                                               "inputSchema":  {
+                                                                                   "$schema":  "https://json-schema.org/draft/2020-12/schema",
+                                                                                   "type":  "object",
+                                                                                   "properties":  {
+                                                                                                      "workspaceId":  {
+                                                                                                                          "type":  "string",
+                                                                                                                          "minLength":  1,
+                                                                                                                          "maxLength":  64
+                                                                                                                      },
+                                                                                                      "path":  {
+                                                                                                                   "type":  "string",
+                                                                                                                   "minLength":  1,
+                                                                                                                   "maxLength":  4096
+                                                                                                               },
+                                                                                                      "intervalSeconds":  {
+                                                                                                                              "type":  "integer",
+                                                                                                                              "minimum":  1,
+                                                                                                                              "maximum":  60,
+                                                                                                                              "default":  5
+                                                                                                                          },
+                                                                                                      "maxFrames":  {
+                                                                                                                        "type":  "integer",
+                                                                                                                        "minimum":  1,
+                                                                                                                        "maximum":  4,
+                                                                                                                        "default":  4
+                                                                                                                    }
+                                                                                                  },
+                                                                                   "required":  [
+                                                                                                    "workspaceId",
+                                                                                                    "path"
+                                                                                                ]
+                                                                               },
+                                                               "requiredCapabilities":  [
+                                                                                            "workspace:read",
+                                                                                            "workspace:exec"
+                                                                                        ],
+                                                               "risk":  "execute",
+                                                               "annotations":  {
+                                                                                   "readOnlyHint":  true,
+                                                                                   "destructiveHint":  false,
+                                                                                   "openWorldHint":  false,
+                                                                                   "idempotentHint":  true
+                                                                               }
+                                                           }
+                                                       ],
+                                     "runtime":  {
+                                                     "processes":  {
+                                                                       "allow":  [
+                                                                                     "ffmpeg"
+                                                                                 ]
+                                                                   },
+                                                     "outboundHttp":  {
+                                                                          "allowOrigins":  [
+
+                                                                                           ]
+                                                                      }
+                                                 }
+                                 }
+                },
+    "license":  "MIT",
+    "repository":  {
+                       "type":  "git",
+                       "url":  "git+https://github.com/tibame201020/queqiao-media.git"
+                   },
+    "bugs":  {
+                 "url":  "https://github.com/tibame201020/queqiao-media/issues"
+             },
+    "homepage":  "https://github.com/tibame201020/queqiao-media#readme",
+    "publishConfig":  {
+                          "access":  "public"
+                      }
+}
