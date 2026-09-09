@@ -1,17 +1,20 @@
-﻿import path from "node:path";
+import path from "node:path";
 import { z } from "zod";
-import {
-  mcpToolResult,
-  type QueqiaoExtension,
-  type ToolDefinition,
-  type WorkerExtensionContext,
+import type {
+  QueqiaoExtension,
+  ToolDefinition,
+  WorkerExtensionContext,
 } from "@tibame201020/queqiao/extension";
 
 const EXTENSION_ID = "dev.queqiao.media";
-const EXTENSION_VERSION = "0.2.3";
+const EXTENSION_VERSION = "0.2.4";
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 const MAX_VIDEO_FRAMES = 4;
 const MAX_CONCURRENT_VIDEO_PROCESSES = 2;
+
+function mcpToolResult(result: unknown) {
+  return { kind: "mcp_tool_result" as const, result };
+}
 
 let activeVideoProcesses = 0;
 const videoProcessWaiters: Array<() => void> = [];

@@ -1,6 +1,6 @@
 {
     "name":  "@tibame201020/queqiao-media",
-    "version":  "0.2.3",
+    "version":  "0.2.4",
     "description":  "Bounded media extension for Queqiao",
     "type":  "module",
     "main":  "./dist/index.js",
@@ -23,8 +23,9 @@
                     "build":  "npm run clean \u0026\u0026 tsc -p tsconfig.build.json",
                     "typecheck":  "tsc -p tsconfig.json --noEmit",
                     "test":  "vitest run src/index.test.ts",
-                    "check":  "npm run typecheck \u0026\u0026 npm test \u0026\u0026 npm run build",
-                    "prepack":  "npm run check"
+                    "check":  "npm run typecheck \u0026\u0026 npm test \u0026\u0026 npm run build \u0026\u0026 npm run test:package",
+                    "prepack":  "npm run check",
+                    "test:package":  "node scripts/check-package-import.mjs"
                 },
     "engines":  {
                     "node":  "\u003e=22.19 \u003c25"
@@ -43,7 +44,7 @@
                     "module":  "./dist/index.js",
                     "manifest":  {
                                      "id":  "dev.queqiao.media",
-                                     "version":  "0.2.3",
+                                     "version":  "0.2.4",
                                      "displayName":  "Queqiao Media",
                                      "host":  {
                                                   "kind":  "worker"

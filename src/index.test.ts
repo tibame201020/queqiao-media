@@ -1,14 +1,16 @@
-﻿import { readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { crc32, inflateSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import { IMAGE_PROBE_DEFINITION, IMAGE_READ_DEFINITION, VIDEO_FRAMES_DEFINITION } from "./index.js";
+import extension, { IMAGE_PROBE_DEFINITION, IMAGE_READ_DEFINITION, VIDEO_FRAMES_DEFINITION } from "./index.js";
 
 const png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNQ6jgDAAJGAXf1GcCGAAAAAElFTkSuQmCC";
 
 describe("Queqiao media", () => {
   it("keeps package manifest declarations synchronized with runtime tool definitions", () => {
     const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as any;
+    expect(packageJson.queqiao.manifest.version).toBe(packageJson.version);
+    expect(extension.manifest.version).toBe(packageJson.version);
     const declarations = new Map(packageJson.queqiao.manifest.contributions.map((entry: any) => [entry.tool, entry]));
     const normalize = (value: any): any => Array.isArray(value)
       ? value.map(normalize)
